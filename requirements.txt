@@ -1,0 +1,9 @@
+pymongo>=4.6.1
+python-dotenv>=1.0.1
+tqdm>=4.66.2
+scikit-learn>=1.4.2
+sentence-transformers>=2.5.1
+openai>=1.23.6
+httpx>=0.24.1
+numpy>=1.24
+torch>=2.0
