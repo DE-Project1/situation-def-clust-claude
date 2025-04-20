@@ -2,6 +2,7 @@
 
 import os
 import httpx
+import time
 from typing import List
 from dotenv import load_dotenv
 
@@ -35,6 +36,7 @@ class ClaudeAPIWrapper:
     async def generate_situation_async(self, content_nouns: List[str]) -> str:
         prompt = self.build_prompt(content_nouns)
 
+        start = time.time()  # 시간 측정 시작
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 self.api_url,
@@ -48,10 +50,20 @@ class ClaudeAPIWrapper:
                     ]
                 }
             )
+        duration = time.time() - start  # 요청 처리 시간
 
         if response.status_code != 200:
             raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
 
         content = response.json()
-        return content["content"][0]["text"].strip()
+        if not content.get("content") or not isinstance(content["content"], list):
+            raise Exception(f"API 응답 형식 오류: {content}")
+
+        result = content["content"][0].get("text", "").strip()
+
+        # 로그 출력
+        print(f"⏱ Claude 응답 시간: {duration:.2f}초 | 키워드 수: {len(content_nouns)} | 응답: {result}")
+
+        return result
+
 
