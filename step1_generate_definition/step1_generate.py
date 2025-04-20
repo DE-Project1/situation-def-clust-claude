@@ -1,18 +1,21 @@
 # step1_generate.py
 
-from mongo.mongo_connector import MongoConnector
-from step1_generate_definition.claude_api_wrapper import ClaudeAPIWrapper
-from tqdm import tqdm
+import argparse
 import asyncio
 import random
 import time
 from collections import deque
 from datetime import datetime, timedelta
-
+from bson import ObjectId
 from dotenv import load_dotenv
+from tqdm import tqdm
+
+from mongo.mongo_connector import MongoConnector
+from step1_generate_definition.claude_api_wrapper import ClaudeAPIWrapper
+
 load_dotenv()
 
-# 🔧 초당 요청 수 제한용 RateLimiter 클래스
+
 class RateLimiter:
     def __init__(self, max_rps):
         self.max_rps = max_rps
@@ -29,12 +32,11 @@ class RateLimiter:
         self.request_times.append(now)
 
 
-# 📌 각 문서 비동기 처리 함수
 async def process_document(cl_wrapper, doc, semaphore, rate_limiter, max_retries=3):
     async with semaphore:
         for attempt in range(1, max_retries + 1):
             try:
-                await rate_limiter.wait()  # 🔒 요청 속도 제한
+                await rate_limiter.wait()
                 nouns = doc["content_nouns"]
                 situation = await cl_wrapper.generate_situation_async(nouns)
                 return {
@@ -48,8 +50,13 @@ async def process_document(cl_wrapper, doc, semaphore, rate_limiter, max_retries
         return None
 
 
-# 🎯 메인 처리 루프
-async def main(batch_size: int = 32, limit: int = None, concurrency_limit: int = 30, max_rps: int = 15):
+async def main(
+    batch_size: int = 32,
+    limit: int = None,
+    concurrency_limit: int = 30,
+    max_rps: int = 15,
+    start_from_oid: str = None
+):
     mongo = MongoConnector()
     claude = ClaudeAPIWrapper()
 
@@ -57,9 +64,11 @@ async def main(batch_size: int = 32, limit: int = None, concurrency_limit: int =
         "content_nouns": {"$exists": True, "$ne": []},
         "situation_definition": {"$exists": False}
     }
+    if start_from_oid:
+        query["_id"] = {"$gt": ObjectId(start_from_oid)}
+
     projection = {"content_nouns": 1}
     documents = mongo.fetch_documents(query=query, projection=projection, limit=limit)
-
     total_docs = len(documents)
     print(f"🟢 총 대상 문서 수: {total_docs}")
 
@@ -81,19 +90,16 @@ async def main(batch_size: int = 32, limit: int = None, concurrency_limit: int =
         if updates:
             mongo.bulk_update_fields(updates)
 
-        # 처리 통계 저장
-        stats.append((datetime.now(), len(updates), duration))
+            print(f"마지막으로 처리된 ID: {updates[-1]['_id']}")
 
-        # 최근 10분만 유지
+        stats.append((datetime.now(), len(updates), duration))
         ten_minutes_ago = datetime.now() - timedelta(minutes=10)
         while stats and stats[0][0] < ten_minutes_ago:
             stats.popleft()
 
-        # ETA 출력 (5배치마다)
         if (batch_idx // batch_size + 1) % 5 == 0:
             total_processed = sum(s[1] for s in stats)
             total_duration = sum(s[2] for s in stats)
-
             if total_processed > 0:
                 speed = total_processed / total_duration
                 remaining = total_docs - batch_idx - batch_size
@@ -106,5 +112,21 @@ async def main(batch_size: int = 32, limit: int = None, concurrency_limit: int =
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description="Generate situation definitions with Claude API.")
+    parser.add_argument("--start_from", type=str, help="Start from this ObjectId (hex string)", default=None)
+    parser.add_argument("--limit", type=int, help="Maximum number of documents to process", default=None)
+    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--concurrency", type=int, default=30)
+    parser.add_argument("--max_rps", type=int, default=15)
+
+    args = parser.parse_args()
+
+    asyncio.run(main(
+        batch_size=args.batch_size,
+        limit=args.limit,
+        concurrency_limit=args.concurrency,
+        max_rps=args.max_rps,
+        start_from_oid=args.start_from
+    ))
+
 
