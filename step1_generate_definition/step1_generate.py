@@ -1,5 +1,6 @@
 # step1_generate.py
-
+import sys
+import os
 import argparse
 import asyncio
 import random
@@ -13,8 +14,10 @@ from tqdm import tqdm
 from mongo.mongo_connector import MongoConnector
 from step1_generate_definition.claude_api_wrapper import ClaudeAPIWrapper
 
-load_dotenv()
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+dotenv_path = os.path.join("env", ".env")
 
+load_dotenv(dotenv_path=dotenv_path)
 
 class RateLimiter:
     def __init__(self, max_rps):
@@ -38,6 +41,8 @@ async def process_document(cl_wrapper, doc, semaphore, rate_limiter, max_retries
             try:
                 await rate_limiter.wait()
                 nouns = doc["content_nouns"]
+                if len(nouns) > 8:
+                    nouns = random.sample(nouns, 8)
                 situation = await cl_wrapper.generate_situation_async(nouns)
                 return {
                     "_id": doc["_id"],
@@ -46,15 +51,15 @@ async def process_document(cl_wrapper, doc, semaphore, rate_limiter, max_retries
                 }
             except Exception as e:
                 print(f"⚠️ 오류 발생 (id: {doc['_id']}, 시도 {attempt}): {e}")
-                await asyncio.sleep(2 * attempt + random.random())
+                await asyncio.sleep(4 * attempt + random.random())
         return None
 
 
 async def main(
     batch_size: int = 32,
     limit: int = None,
-    concurrency_limit: int = 30,
-    max_rps: int = 15,
+    concurrency_limit: int = 8,
+    max_rps: int = 8,
     start_from_oid: str = None
 ):
     mongo = MongoConnector()
@@ -116,17 +121,11 @@ if __name__ == "__main__":
     parser.add_argument("--start_from", type=str, help="Start from this ObjectId (hex string)", default=None)
     parser.add_argument("--limit", type=int, help="Maximum number of documents to process", default=None)
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--concurrency", type=int, default=30)
-    parser.add_argument("--max_rps", type=int, default=15)
+    parser.add_argument("--concurrency", type=int, default=8)
+    parser.add_argument("--max_rps", type=int, default=8)
 
     args = parser.parse_args()
 
-    asyncio.run(main(
-        batch_size=args.batch_size,
-        limit=args.limit,
-        concurrency_limit=args.concurrency,
-        max_rps=args.max_rps,
-        start_from_oid=args.start_from
-    ))
-
-
+    asyncio.run(
+        main(batch_size=args.batch_size, limit=args.limit, concurrency_limit=args.concurrency, max_rps=args.max_rps,
+             start_from_oid=args.start_from))
