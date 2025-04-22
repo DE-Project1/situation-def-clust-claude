@@ -1,8 +1,7 @@
-# models/claude_api_wrapper.py
+# claude_api_wrapper.py
 
 import os
 import httpx
-import time
 from typing import List
 from dotenv import load_dotenv
 
@@ -26,17 +25,16 @@ class ClaudeAPIWrapper:
     @staticmethod
     def build_prompt(content_nouns: List[str]) -> str:
         prompt = (
-            "아래 키워드를 참고해서, 어떤 상황에 이런 장소를 추천할 수 있을지 한 문장으로 정의해줘.\n"
-            "문장은 '~할 때'로 끝나는 형식으로 작성해줘.\n"
+            "다음 키워드로 유추되는 음식점 추천 상황을 한 문장으로 간결하게 말해줘.\n"
+            "문장은 '~할 때'로 끝내. 문장은 하나만 출력해.\n"
             f"키워드: {', '.join(content_nouns)}\n"
-            "상황정의:"
+            "상황 정의:"
         )
         return prompt
 
     async def generate_situation_async(self, content_nouns: List[str]) -> str:
         prompt = self.build_prompt(content_nouns)
 
-        start = time.time()  # 시간 측정 시작
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
                 self.api_url,
@@ -44,13 +42,13 @@ class ClaudeAPIWrapper:
                 json={
                     "model": self.model,
                     "max_tokens": 100,
-                    "temperature": 0.7,
+                    "temperature": 0.3,
+                    "top_p" : 0.7,
                     "messages": [
                         {"role": "user", "content": prompt}
                     ]
                 }
             )
-        duration = time.time() - start  # 요청 처리 시간
 
         if response.status_code != 200:
             raise Exception(f"API 호출 실패: {response.status_code}, {response.text}")
@@ -62,8 +60,10 @@ class ClaudeAPIWrapper:
         result = content["content"][0].get("text", "").strip()
 
         # 로그 출력
-        print(f"⏱ Claude 응답 시간: {duration:.2f}초 | 키워드 수: {len(content_nouns)} | 응답: {result}")
-
         return result
+
+
+
+
 
 
