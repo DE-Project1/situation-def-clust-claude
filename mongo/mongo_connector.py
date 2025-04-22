@@ -5,7 +5,9 @@ from typing import List, Dict, Optional
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=os.path.join("env", ".env"))
+dotenv_path = os.path.join("env", ".env")
+
+load_dotenv(dotenv_path=dotenv_path)
 
 class MongoConnector:
     def __init__(
