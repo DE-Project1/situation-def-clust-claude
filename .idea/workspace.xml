@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dae05740-ad87-4221-9936-49c06395e6b7" name="Changes" comment="" />
+    <list default="true" id="dae05740-ad87-4221-9936-49c06395e6b7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/situation-def-clust-claude.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/situation-def-clust-claude.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/step2_clustering/step2_cluster_clustering.py" beforeDir="false" afterPath="$PROJECT_DIR$/step2_clustering/step2_cluster_clustering.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,18 +28,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.check_document.executor&quot;: &quot;Run&quot;,
-    &quot;Python.step1_dryrun.executor&quot;: &quot;Run&quot;,
-    &quot;Python.step1_generate_batch.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;kaeun&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.check_document.executor": "Run",
+    "Python.step1_dryrun.executor": "Run",
+    "Python.step1_generate_batch.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "kaeun"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/step2_clustering" />
+      <recent name="$PROJECT_DIR$/data" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/tests" />
     </key>
