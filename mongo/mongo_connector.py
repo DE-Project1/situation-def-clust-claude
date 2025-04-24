@@ -28,9 +28,14 @@ class MongoConnector:
         self.collection = self.db[self.collection_name]
 
     def fetch_documents(self, query: Optional[Dict] = None, projection: Optional[Dict] = None,
-                        limit: Optional[int] = None):
+                        limit: Optional[int] = None, skip: Optional[int] = None, sort=None):
         query = query or {}
         cursor = self.collection.find(query, projection)
+
+        if sort:
+            cursor = cursor.sort(sort)
+        if skip:
+            cursor = cursor.skip(skip)
         if limit:
             cursor = cursor.limit(limit)
         return list(cursor)
