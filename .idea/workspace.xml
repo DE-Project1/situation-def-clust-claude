@@ -5,12 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dae05740-ad87-4221-9936-49c06395e6b7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/step3_generate_cluster_labels/add_cluster_names.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/step3_generate_cluster_labels/cluster_0.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/step3_generate_cluster_labels/claude_api_wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/step3_generate_cluster_labels/claude_api_wrapper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/step3_generate_cluster_labels/generate_labels.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/step3_generate_cluster_labels/step3_label.py" beforeDir="false" afterPath="$PROJECT_DIR$/step3_generate_cluster_labels/step3_label.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
